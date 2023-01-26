@@ -64,6 +64,7 @@ public class NiftySettingsUsecaseTests {
             threadPoolExecutor.setCorePoolSize(size);
         }
 
+        @Override
         public void close() {
             threadPoolExecutor.shutdown();
         }
