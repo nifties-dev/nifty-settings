@@ -58,10 +58,6 @@ public class NiftySettingsUsecaseTests {
             return threadPoolExecutor;
         }
 
-        public int getThreadPoolSize() {
-            return threadPoolExecutor.getCorePoolSize();
-        }
-
         @Setting
         public void setThreadPoolSize(int size) {
             threadPoolExecutor.setMaximumPoolSize(size);

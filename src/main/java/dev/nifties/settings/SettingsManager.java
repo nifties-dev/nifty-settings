@@ -18,13 +18,20 @@ public class SettingsManager {
     }
 
     protected void apply(SettingAccessor mapping, Object object) {
-        Object defaultValue = mapping.getGetter().apply(object);
-        Object value = service.get(mapping.getName(), defaultValue);
-        mapping.getSetter().accept(object, value);
+        Object value = service.get(mapping.getName());
+        if (value != null) {
+            mapping.getSetter().accept(object, value);
+        }
     }
 
     public void bind(Object object) {
         throw new UnsupportedOperationException("Not implemented");
+    }
+
+    protected void applyBinding(SettingAccessor mapping, Object object) {
+        Object defaultValue = mapping.getGetter().apply(object);
+        Object value = service.get(mapping.getName(), defaultValue);
+        mapping.getSetter().accept(object, value);
     }
 
     public void unbind(Object object) {
