@@ -11,35 +11,32 @@ import dev.nifties.settings.annotation.Setting;
 
 public class SettingsAnalyzer {
 
-    public <O> Collection<SettingAccessor<O, ?>> get(Class<O> clazz) {
+    public <O> Collection<SettingAccessor<O>> get(Class<O> clazz) {
         return Arrays.stream(clazz.getDeclaredFields())
-                .map(f -> (SettingAccessor<O, ?>) this.processField(clazz, f))
+                .map(f -> (SettingAccessor<O>) this.processField(clazz, f))
                 .filter(Objects::nonNull).collect(Collectors.toList());
     }
 
-    protected <O, F> SettingAccessor<O, F> processField(Class<O> clazz,
-            Field field) {
+    protected <O> SettingAccessor<O> processField(Class<O> clazz, Field field) {
         Setting settingAnnotation = field.getAnnotation(Setting.class);
         if (settingAnnotation == null) {
             return null;
         }
 
         makeAccessible(field);
-        return new SettingAccessor<O, F>(
-                clazz.getName() + '.' + field.getName(),
-                o -> this.getter(field, o),
-                (O o, F v) -> this.setter(field, o, v));
+        return new SettingAccessor<O>(clazz.getName() + '.' + field.getName(),
+                o -> this.getter(field, o), (o, v) -> this.setter(field, o, v));
     }
 
-    protected <O, F> F getter(Field field, O object) {
+    protected <O> Object getter(Field field, O object) {
         try {
-            return (F) field.get(object);
+            return field.get(object);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    protected <O, F> void setter(Field field, O object, F value) {
+    protected <O> void setter(Field field, O object, Object value) {
         try {
             field.set(object, value);
         } catch (IllegalAccessException e) {

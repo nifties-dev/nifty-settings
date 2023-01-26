@@ -3,19 +3,19 @@ package dev.nifties.settings;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public class SettingAccessor<O, F> {
+public class SettingAccessor<O> {
     private final String name;
-    private final Function<O, F> getter;
-    private final BiConsumer<O, F> setter;
+    private final Function<O, Object> getter;
+    private final BiConsumer<O, Object> setter;
 
-    public SettingAccessor(String name, Function<O, F> getter,
-            BiConsumer<O, F> setter) {
+    public SettingAccessor(String name, Function<O, Object> getter,
+            BiConsumer<O, Object> setter) {
         this.name = name;
         this.getter = getter;
         this.setter = setter;
     }
 
-    public Function<O, F> getGetter() {
+    public Function<O, Object> getGetter() {
         return getter;
     }
 
@@ -23,7 +23,7 @@ public class SettingAccessor<O, F> {
         return name;
     }
 
-    public BiConsumer<O, F> getSetter() {
+    public BiConsumer<O, Object> getSetter() {
         return setter;
     }
 }

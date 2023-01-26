@@ -13,14 +13,14 @@ public class SettingsManager {
     }
 
     public <O> void inject(O object) {
-        Collection<SettingAccessor<O, ?>> mappings = analyzer
+        Collection<SettingAccessor<O>> mappings = analyzer
                 .get((Class<O>) object.getClass());
         mappings.forEach(m -> this.apply(m, object));
     }
 
-    protected <O, T> void apply(SettingAccessor<O, T> mapping, O object) {
-        T defaultValue = mapping.getGetter().apply(object);
-        T value = service.get(mapping.getName(), defaultValue);
+    protected <O> void apply(SettingAccessor<O> mapping, O object) {
+        Object defaultValue = mapping.getGetter().apply(object);
+        Object value = service.get(mapping.getName(), defaultValue);
         mapping.getSetter().accept(object, value);
     }
 
