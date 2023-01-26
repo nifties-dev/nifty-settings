@@ -11,24 +11,24 @@ import dev.nifties.settings.annotation.Setting;
 
 public class SettingsAnalyzer {
 
-    public <O> Collection<SettingAccessor<O>> get(Class<O> clazz) {
+    public Collection<SettingAccessor> get(Class<?> clazz) {
         return Arrays.stream(clazz.getDeclaredFields())
-                .map(f -> (SettingAccessor<O>) this.processField(clazz, f))
-                .filter(Objects::nonNull).collect(Collectors.toList());
+                .map(f -> this.processField(clazz, f)).filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
-    protected <O> SettingAccessor<O> processField(Class<O> clazz, Field field) {
+    protected SettingAccessor processField(Class<?> clazz, Field field) {
         Setting settingAnnotation = field.getAnnotation(Setting.class);
         if (settingAnnotation == null) {
             return null;
         }
 
         makeAccessible(field);
-        return new SettingAccessor<O>(clazz.getName() + '.' + field.getName(),
+        return new SettingAccessor(clazz.getName() + '.' + field.getName(),
                 o -> this.getter(field, o), (o, v) -> this.setter(field, o, v));
     }
 
-    protected <O> Object getter(Field field, O object) {
+    protected Object getter(Field field, Object object) {
         try {
             return field.get(object);
         } catch (IllegalAccessException e) {
@@ -36,7 +36,7 @@ public class SettingsAnalyzer {
         }
     }
 
-    protected <O> void setter(Field field, O object, Object value) {
+    protected void setter(Field field, Object object, Object value) {
         try {
             field.set(object, value);
         } catch (IllegalAccessException e) {
