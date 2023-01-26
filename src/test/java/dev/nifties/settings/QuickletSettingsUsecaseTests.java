@@ -1,5 +1,6 @@
 package dev.nifties.settings;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collection;
@@ -8,13 +9,13 @@ import org.junit.jupiter.api.Test;
 
 import dev.nifties.settings.annotation.Setting;
 
-public class QuickletSettingsApplicationTests {
+public class NiftySettingsUsecaseTests {
 
     private SimpleSettingsService settingsService = new SimpleSettingsService();
     private SettingsManager settingsManager = new SettingsManager(
             new SettingsAnalyzer(), settingsService);
 
-    public static class MyService {
+    public static class MyService1 {
         @Setting
         private boolean enabled;
 
@@ -32,12 +33,16 @@ public class QuickletSettingsApplicationTests {
 
     @Test
     public void simpleToggleService() {
-        settingsService.put(MyService.class.getName() + ".enabled",
+        settingsService.put(MyService1.class.getName() + ".enabled",
                 Boolean.TRUE);
 
-        MyService myService = new MyService();
+        MyService1 myService = new MyService1();
         settingsManager.inject(myService);
-
         assertTrue(myService.isEnabled());
+
+        myService = new MyService1();
+        settingsService.remove(MyService1.class.getName() + ".enabled");
+        settingsManager.inject(myService);
+        assertFalse(myService.isEnabled());
     }
 }

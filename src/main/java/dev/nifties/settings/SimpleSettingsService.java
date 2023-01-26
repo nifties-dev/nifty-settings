@@ -13,4 +13,8 @@ public class SimpleSettingsService implements SettingsService {
     public void put(String key, Object value) {
         values.put(key, value);
     }
+
+    public void remove(String key) {
+        values.remove(key);
+    }
 }
