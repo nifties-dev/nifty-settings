@@ -42,6 +42,7 @@ public class SettingsAnalyzer {
         }
         if (!method.getName().startsWith("set")
                 || method.getName().length() <= 4
+                || method.getReturnType() != Void.TYPE
                 || method.getParameterCount() != 1) {
             throw new IllegalArgumentException(
                     "@Settings not allowed on method: " + method + ","
