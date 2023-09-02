@@ -1,6 +1,7 @@
 package dev.nifties.settings;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public class PollingSettingsService<I> implements SettingsService {
     private final ConcurrentHashMap<String, Object> values = new ConcurrentHashMap<>();
@@ -22,7 +23,21 @@ public class PollingSettingsService<I> implements SettingsService {
     }
 
     public synchronized void add(SettingsRepository.SettingsUpdate<I> update) {
-        values.put(update.getKey(), update.getValue());
+        if (update.getOperation() == SettingsRepository.Change.UPDATE) {
+            values.put(update.getKey(), update.getValue());
+        } else {
+            values.remove(update.getKey());
+        }
         lastIdentifier = update.getIdentifier();
+    }
+
+    @Override
+    public void addListener(String key, Consumer<Object> listener) {
+
+    }
+
+    @Override
+    public void removeListener(Consumer<Object> listener) {
+
     }
 }

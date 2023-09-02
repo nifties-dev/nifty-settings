@@ -17,7 +17,7 @@ public class NiftySettingsUsecaseTests {
 
     private SimpleSettingsService settingsService = new SimpleSettingsService();
     private SettingsManager settingsManager = new SettingsManager(
-            new SettingsAnalyzer(), settingsService);
+            new SettingsAnalyzer(), new SettingsBinder(), settingsService);
 
     public static class MyService1 {
         @Setting

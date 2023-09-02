@@ -14,7 +14,7 @@ public class SettingsFieldTest {
 
     private SimpleSettingsService settingsService = new SimpleSettingsService();
     private SettingsManager settingsManager = new SettingsManager(
-            new SettingsAnalyzer(), settingsService);
+            new SettingsAnalyzer(), new SettingsBinder(), settingsService);
 
     public static class MyService1 {
         @Setting
@@ -116,5 +116,23 @@ public class SettingsFieldTest {
         settingsService.remove(MyService4.class.getName() + ".queueSize");
         settingsManager.inject(myService);
         assertEquals(0, myService.getQueueSize());
+    }
+
+    @Test
+    public void annotatedPrivateFieldWithGetterAndSetter2() {
+        settingsService.put(MyService4.class.getName() + ".queueSize", 10);
+
+        MyService4 myService = new MyService4();
+        settingsManager.bind(myService);
+        assertEquals(10, myService.getQueueSize());
+
+        settingsService.put(MyService4.class.getName() + ".queueSize", 0);
+        assertEquals(1, myService.getQueueSize());
+
+        settingsService.remove(MyService4.class.getName() + ".queueSize");
+        assertEquals(1, myService.getQueueSize()); // 1 not 0, because original value is restored using setter
+
+        settingsManager.unbind(myService);
+//        assertEquals(0, myService.getQueueSize());
     }
 }

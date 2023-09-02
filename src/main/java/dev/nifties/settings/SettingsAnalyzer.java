@@ -1,5 +1,7 @@
 package dev.nifties.settings;
 
+import dev.nifties.settings.annotation.Setting;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -11,8 +13,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import dev.nifties.settings.annotation.Setting;
 
 public class SettingsAnalyzer {
 
@@ -31,6 +31,7 @@ public class SettingsAnalyzer {
             return null;
         }
 
+        // find setter
         BiConsumer<Object, Object> setter;
         try {
             // try to find setter method
@@ -45,8 +46,25 @@ public class SettingsAnalyzer {
             makeAccessible(field);
             setter = (o, v) -> this.setter(field, o, v);
         }
-        return new SettingAccessor(clazz.getName() + '.' + field.getName(),
-                o -> this.getter(field, o), setter);
+
+        // find getter
+        Function<Object, Object> getter;
+        try {
+            String getterName = Boolean.class.isAssignableFrom(
+                    field.getType()) ? "is" : "get";
+            getterName += Character.toUpperCase(field.getName().charAt(0));
+            if (field.getName().length() > 1) {
+                getterName += field.getName().substring(1);
+            }
+            Method getterMethod = clazz.getMethod(getterName);
+            getter = o -> this.getter(getterMethod, o);
+        } catch (NoSuchMethodException e) {
+            // getter not found, will get field directly
+            makeAccessible(field);
+            getter = o -> this.getter(field, o);
+        }
+
+        return new SettingAccessor(clazz.getName() + '.' + field.getName(), getter, setter);
     }
 
     protected SettingAccessor processMethod(Class<?> clazz, Method method) {
@@ -71,6 +89,7 @@ public class SettingsAnalyzer {
         try {
             // try to fiend field
             Field field = clazz.getField(fieldName);
+            makeAccessible(field);
             getter = o -> this.getter(field, o);
         } catch (NoSuchFieldException e) {
             try {

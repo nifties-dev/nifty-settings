@@ -1,14 +1,18 @@
 package dev.nifties.settings;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Consumer;
 
 public class SettingsManager {
 
     private final SettingsAnalyzer analyzer;
+    private final SettingsBinder binder;
     private final SettingsService service;
 
-    public SettingsManager(SettingsAnalyzer analyzer, SettingsService service) {
+    public SettingsManager(SettingsAnalyzer analyzer, SettingsBinder binder, SettingsService service) {
         this.analyzer = analyzer;
+        this.binder = binder;
         this.service = service;
     }
 
@@ -25,16 +29,22 @@ public class SettingsManager {
     }
 
     public void bind(Object object) {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
-    protected void applyBinding(SettingAccessor mapping, Object object) {
-        Object defaultValue = mapping.getGetter().apply(object);
-        Object value = service.get(mapping.getName(), defaultValue);
-        mapping.getSetter().accept(object, value);
+        Collection<SettingAccessor> mappings = analyzer.get(object.getClass());
+        Collection<Consumer<Object>> appliers = new ArrayList<>(mappings.size());
+        for (SettingAccessor mapping : mappings) {
+            Object defaultValue = mapping.getGetter().apply(object);
+            Consumer<Object> applier = v -> mapping.getSetter().accept(object, v != null ? v : defaultValue);
+            Object value = service.get(mapping.getName());
+            applier.accept(value);
+            service.addListener(mapping.getName(), applier);
+        }
+        binder.add(object, appliers);
     }
 
     public void unbind(Object object) {
-        throw new UnsupportedOperationException("Not implemented");
+        Collection<Consumer<Object>> listeners = binder.remove(object);
+        if (listeners != null) {
+            listeners.forEach(service::removeListener);
+        }
     }
 }

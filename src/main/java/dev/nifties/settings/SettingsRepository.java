@@ -9,8 +9,14 @@ public interface SettingsRepository<I> {
     interface SettingsUpdate<I> {
         I getIdentifier();
 
+        Change getOperation();
+
         String getKey();
 
         Object getValue();
+    }
+
+    public enum Change {
+        UPDATE, DELETE
     }
 }
