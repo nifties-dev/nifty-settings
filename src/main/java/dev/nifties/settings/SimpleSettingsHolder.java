@@ -1,26 +1,23 @@
 package dev.nifties.settings;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class SimpleSettingsHolder implements SettingsSource, SettingsStream {
-    private final Map<String, Object> values = new ConcurrentHashMap<>();
+    private final Map<String, SettingContainer<Object>> values = new ConcurrentHashMap<>();
 
     private final Set<Consumer<String>> subscribers = ConcurrentHashMap.newKeySet();
 
     @Override
-    public boolean containsKey(String key) {
-        return values.containsKey(key);
-    }
-
-    public <T> T get(String key, T defaultValue) {
-        return (T) values.getOrDefault(key, defaultValue);
+    public SettingContainer<Object> get(String key) {
+        return values.get(key);
     }
 
     public void put(String key, Object value) {
-        values.put(key, value);
+        values.put(key, new SettingContainer<>(value));
         notifyListeners(key);
     }
 
