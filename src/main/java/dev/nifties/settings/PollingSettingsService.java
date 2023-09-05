@@ -3,7 +3,7 @@ package dev.nifties.settings;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-public class PollingSettingsService<I> implements SettingsService {
+public class PollingSettingsService<I> implements SettingsSource {
     private final ConcurrentHashMap<String, Object> values = new ConcurrentHashMap<>();
 
     private final SettingsRepository<I> repository;
@@ -29,15 +29,5 @@ public class PollingSettingsService<I> implements SettingsService {
             values.remove(update.getKey());
         }
         lastIdentifier = update.getIdentifier();
-    }
-
-    @Override
-    public void addListener(String key, Consumer<Object> listener) {
-
-    }
-
-    @Override
-    public void removeListener(Consumer<Object> listener) {
-
     }
 }

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.Closeable;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -13,9 +14,10 @@ import org.junit.jupiter.api.Test;
 
 import dev.nifties.settings.annotation.Setting;
 
-public class NiftySettingsUsecaseTests {
+public class NiftySettingsUsecaseTest {
 
-    private SimpleSettingsService settingsService = new SimpleSettingsService();
+    private SimpleSettingsHolder settingsHolder = new SimpleSettingsHolder();
+    private SettingsService settingsService = new SettingsService(List.of(settingsHolder));
     private SettingsManager settingsManager = new SettingsManager(
             new SettingsAnalyzer(), new SettingsBinder(), settingsService);
 
@@ -37,7 +39,7 @@ public class NiftySettingsUsecaseTests {
 
     @Test
     public void useCase1() {
-        settingsService.put(MyService1.class.getName() + ".enabled",
+        settingsHolder.put(MyService1.class.getName() + ".enabled",
                 Boolean.TRUE);
 
         MyService1 myService = new MyService1();
@@ -45,7 +47,7 @@ public class NiftySettingsUsecaseTests {
         assertTrue(myService.isEnabled());
 
         myService = new MyService1();
-        settingsService.remove(MyService1.class.getName() + ".enabled");
+        settingsHolder.remove(MyService1.class.getName() + ".enabled");
         settingsManager.inject(myService);
         assertFalse(myService.isEnabled());
     }
@@ -74,7 +76,7 @@ public class NiftySettingsUsecaseTests {
     public void useCase2() {
         int defaultPoolSize = Runtime.getRuntime().availableProcessors();
         int customPoolSize = defaultPoolSize * 2;
-        settingsService.put(MyService2.class.getName() + ".threadPoolSize",
+        settingsHolder.put(MyService2.class.getName() + ".threadPoolSize",
                 customPoolSize);
 
         try (MyService2 myService = new MyService2()) {
@@ -86,7 +88,7 @@ public class NiftySettingsUsecaseTests {
         }
 
         try (MyService2 myService = new MyService2()) {
-            settingsService
+            settingsHolder
                     .remove(MyService2.class.getName() + ".threadPoolSize");
             settingsManager.inject(myService);
             assertEquals(defaultPoolSize,
