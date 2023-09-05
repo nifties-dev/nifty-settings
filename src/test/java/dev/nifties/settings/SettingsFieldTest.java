@@ -20,7 +20,7 @@ public class SettingsFieldTest {
     }
 
     @Test
-    public void annotatedFieldWithoutMethods() {
+    public void annotatedFieldWithoutMethodsInjected() {
         settingsHolder.put(MyService1.class.getName() + ".enabled",
                 Boolean.TRUE);
 
@@ -34,6 +34,19 @@ public class SettingsFieldTest {
         assertFalse(myService.enabled);
     }
 
+    @Test
+    public void annotatedFieldWithoutMethodsBound() {
+        settingsHolder.put(MyService1.class.getName() + ".enabled",
+                Boolean.TRUE);
+
+        MyService1 myService = new MyService1();
+        settingsManager.bind(myService);
+        assertTrue(myService.enabled);
+
+        settingsHolder.remove(MyService1.class.getName() + ".enabled");
+        assertFalse(myService.enabled);
+    }
+
     public static class MyService2 {
         @Setting
         private boolean enabled;
@@ -44,7 +57,7 @@ public class SettingsFieldTest {
     }
 
     @Test
-    public void annotatedPrivateFieldWithGetter() {
+    public void annotatedPrivateFieldWithGetterInjected() {
         settingsHolder.put(MyService2.class.getName() + ".enabled",
                 Boolean.TRUE);
 
@@ -58,6 +71,19 @@ public class SettingsFieldTest {
         assertFalse(myService.isEnabled());
     }
 
+    @Test
+    public void annotatedPrivateFieldWithGetterBound() {
+        settingsHolder.put(MyService2.class.getName() + ".enabled",
+                Boolean.TRUE);
+
+        MyService2 myService = new MyService2();
+        settingsManager.bind(myService);
+        assertTrue(myService.isEnabled());
+
+        settingsHolder.remove(MyService2.class.getName() + ".enabled");
+        assertFalse(myService.isEnabled());
+    }
+
     public static class MyService3 {
         @Setting
         private int queueSize;
@@ -68,7 +94,7 @@ public class SettingsFieldTest {
     }
 
     @Test
-    public void annotatedPrivateFieldWithSetter() {
+    public void annotatedPrivateFieldWithSetterInjected() {
         settingsHolder.put(MyService3.class.getName() + ".queueSize", 10);
 
         MyService3 myService = new MyService3();
@@ -82,6 +108,22 @@ public class SettingsFieldTest {
         myService = new MyService3();
         settingsHolder.remove(MyService3.class.getName() + ".queueSize");
         settingsManager.inject(myService);
+        assertEquals(0, myService.queueSize);
+    }
+
+    @Test
+    public void annotatedPrivateFieldWithSetterBound() {
+        settingsHolder.put(MyService3.class.getName() + ".queueSize", 10);
+
+        MyService3 myService = new MyService3();
+        settingsManager.bind(myService);
+        assertEquals(10, myService.queueSize);
+
+        settingsHolder.put(MyService3.class.getName() + ".queueSize", 0);
+        assertEquals(1, myService.queueSize);
+
+        myService = new MyService3();
+        settingsHolder.remove(MyService3.class.getName() + ".queueSize");
         assertEquals(0, myService.queueSize);
     }
 
@@ -99,7 +141,7 @@ public class SettingsFieldTest {
     }
 
     @Test
-    public void annotatedPrivateFieldWithGetterAndSetter() {
+    public void annotatedPrivateFieldWithGetterAndSetterInjected() {
         settingsHolder.put(MyService4.class.getName() + ".queueSize", 10);
 
         MyService4 myService = new MyService4();
@@ -117,7 +159,7 @@ public class SettingsFieldTest {
     }
 
     @Test
-    public void annotatedPrivateFieldWithGetterAndSetter2() {
+    public void annotatedPrivateFieldWithGetterAndSetterBound() {
         settingsHolder.put(MyService4.class.getName() + ".queueSize", 10);
 
         MyService4 myService = new MyService4();
