@@ -69,6 +69,11 @@ public class SettingsFieldTest {
         settingsHolder.remove(MyService2.class.getName() + ".enabled");
         settingsManager.inject(myService);
         assertFalse(myService.isEnabled());
+
+        settingsHolder.put(MyService2.class.getName() + ".enabled",
+                Boolean.TRUE);
+        settingsManager.inject(myService);
+        assertTrue(myService.isEnabled());
     }
 
     @Test
@@ -81,6 +86,16 @@ public class SettingsFieldTest {
         assertTrue(myService.isEnabled());
 
         settingsHolder.remove(MyService2.class.getName() + ".enabled");
+        assertFalse(myService.isEnabled());
+
+        settingsHolder.put(MyService2.class.getName() + ".enabled",
+                Boolean.TRUE);
+        assertTrue(myService.isEnabled());
+
+        settingsManager.unbind(myService);
+        assertFalse(myService.isEnabled());
+
+        settingsHolder.put(MyService2.class.getName() + ".enabled", true);
         assertFalse(myService.isEnabled());
     }
 
@@ -122,9 +137,14 @@ public class SettingsFieldTest {
         settingsHolder.put(MyService3.class.getName() + ".queueSize", 0);
         assertEquals(1, myService.queueSize);
 
-        myService = new MyService3();
         settingsHolder.remove(MyService3.class.getName() + ".queueSize");
-        assertEquals(0, myService.queueSize);
+        assertEquals(1, myService.queueSize);
+
+        settingsManager.unbind(myService);
+        assertEquals(1, myService.queueSize);
+
+        settingsHolder.put(MyService3.class.getName() + ".queueSize", 20);
+        assertEquals(1, myService.queueSize);
     }
 
     public static class MyService4 {
@@ -173,6 +193,9 @@ public class SettingsFieldTest {
         assertEquals(1, myService.getQueueSize()); // 1 not 0, because original value is restored using setter
 
         settingsManager.unbind(myService);
-//        assertEquals(0, myService.getQueueSize());
+        assertEquals(1, myService.getQueueSize());
+
+        settingsHolder.put(MyService4.class.getName() + ".queueSize", 20);
+        assertEquals(1, myService.getQueueSize());
     }
 }

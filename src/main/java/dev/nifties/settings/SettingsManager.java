@@ -55,6 +55,7 @@ public class SettingsManager {
         Collection<Consumer<SettingContainer<Object>>> listeners = binder.remove(object);
         if (listeners != null) {
             listeners.forEach(service::removeListener);
+            listeners.forEach(l -> l.accept(null)); // restore to original value
         }
     }
 }
