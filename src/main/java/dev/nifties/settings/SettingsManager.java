@@ -38,10 +38,15 @@ public class SettingsManager {
             applier.accept(value);
             service.addListener(mapping.getName(), applier);
         }
-        binder.add(object, appliers);
+        if (binder != null) {
+            binder.add(object, appliers);
+        }
     }
 
     public void unbind(Object object) {
+        if (binder == null) {
+            throw new UnsupportedOperationException("Unbind operation requires SettingsBinder to be set up");
+        }
         Collection<Consumer<Object>> listeners = binder.remove(object);
         if (listeners != null) {
             listeners.forEach(service::removeListener);
