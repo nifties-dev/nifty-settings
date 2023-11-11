@@ -1,6 +1,7 @@
 package dev.nifties.settings;
 
 import dev.nifties.settings.annotation.Setting;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -51,70 +52,51 @@ public class SettingsMethodTest {
         settingsHolder.remove(MyService1.class.getName() + ".enabled");
         assertFalse(myService.notMatchingField);
     }
-/*
+
     public static class MyService2 {
-        @Setting
         private boolean enabled;
 
+        @Setting
         public boolean isEnabled() {
             return enabled;
         }
     }
 
     @Test
-    public void annotatedPrivateFieldWithGetterInjected() {
-        settingsHolder.put(MyService2.class.getName() + ".enabled",
-                Boolean.TRUE);
+    public void annotatedGetterWithPrivateFieldInjected() {
+        settingsHolder.put(MyService2.class.getName() + ".enabled", Boolean.TRUE);
 
-        MyService2 myService = new MyService2();
-        settingsManager.inject(myService);
-        assertTrue(myService.isEnabled());
-
-        myService = new MyService2();
-        settingsHolder.remove(MyService2.class.getName() + ".enabled");
-        settingsManager.inject(myService);
-        assertFalse(myService.isEnabled());
-
-        settingsHolder.put(MyService2.class.getName() + ".enabled",
-                Boolean.TRUE);
-        settingsManager.inject(myService);
-        assertTrue(myService.isEnabled());
+        IllegalArgumentException e = Assertions.assertThrows(IllegalArgumentException.class,
+                () -> settingsManager.inject(new MyService2()));
+        assertEquals("""
+          @Settings not allowed on method: \
+          public boolean dev.nifties.settings.SettingsMethodTest$MyService2.isEnabled(), \
+          only setters and fields can be marked with this annotation""", e.getMessage());
     }
 
     @Test
-    public void annotatedPrivateFieldWithGetterBound() {
-        settingsHolder.put(MyService2.class.getName() + ".enabled",
-                Boolean.TRUE);
+    public void annotatedGetterWithPrivateFieldBound() {
+        settingsHolder.put(MyService2.class.getName() + ".enabled", Boolean.TRUE);
 
-        MyService2 myService = new MyService2();
-        settingsManager.bind(myService);
-        assertTrue(myService.isEnabled());
-
-        settingsHolder.remove(MyService2.class.getName() + ".enabled");
-        assertFalse(myService.isEnabled());
-
-        settingsHolder.put(MyService2.class.getName() + ".enabled",
-                Boolean.TRUE);
-        assertTrue(myService.isEnabled());
-
-        settingsManager.unbind(myService);
-        assertFalse(myService.isEnabled());
-
-        settingsHolder.put(MyService2.class.getName() + ".enabled", true);
-        assertFalse(myService.isEnabled());
+        IllegalArgumentException e = Assertions.assertThrows(IllegalArgumentException.class,
+                () -> settingsManager.bind(new MyService2()));
+        assertEquals("""
+          @Settings not allowed on method: \
+          public boolean dev.nifties.settings.SettingsMethodTest$MyService2.isEnabled(), \
+          only setters and fields can be marked with this annotation""", e.getMessage());
     }
 
     public static class MyService3 {
-        @Setting
         private int queueSize;
 
+        @Setting
         public void setQueueSize(int queueSize) {
             this.queueSize = Math.max(queueSize, 1);
         }
     }
 
     @Test
-    public void annotatedPrivateFieldWithSetterInjected() {
+    public void annotatedSetterWithPrivateFieldInjected() {
         settingsHolder.put(MyService3.class.getName() + ".queueSize", 10);
 
         MyService3 myService = new MyService3();
@@ -132,7 +114,7 @@ public class SettingsMethodTest {
     }
 
     @Test
-    public void annotatedPrivateFieldWithSetterBound() {
+    public void annotatedSetterWithPrivateFieldBound() {
         settingsHolder.put(MyService3.class.getName() + ".queueSize", 10);
 
         MyService3 myService = new MyService3();
@@ -153,20 +135,20 @@ public class SettingsMethodTest {
     }
 
     public static class MyService4 {
-        @Setting
         private int queueSize;
 
         public int getQueueSize() {
             return queueSize;
         }
 
+        @Setting
         public void setQueueSize(int queueSize) {
             this.queueSize = Math.max(queueSize, 1);
         }
     }
 
     @Test
-    public void annotatedPrivateFieldWithGetterAndSetterInjected() {
+    public void annotatedSetterWithPrivateFieldAndGetterInjected() {
         settingsHolder.put(MyService4.class.getName() + ".queueSize", 10);
 
         MyService4 myService = new MyService4();
@@ -184,7 +166,7 @@ public class SettingsMethodTest {
     }
 
     @Test
-    public void annotatedPrivateFieldWithGetterAndSetterBound() {
+    public void annotatedSetterWithPrivateFieldAndSetterBound() {
         settingsHolder.put(MyService4.class.getName() + ".queueSize", 10);
 
         MyService4 myService = new MyService4();
@@ -203,5 +185,4 @@ public class SettingsMethodTest {
         settingsHolder.put(MyService4.class.getName() + ".queueSize", 20);
         assertEquals(1, myService.getQueueSize());
     }
- */
 }
