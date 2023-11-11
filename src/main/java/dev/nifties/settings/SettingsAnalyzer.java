@@ -2,10 +2,7 @@ package dev.nifties.settings;
 
 import dev.nifties.settings.annotation.Setting;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
@@ -134,7 +131,7 @@ public class SettingsAnalyzer {
 
     protected void setter(Field field, Object object, Object value) {
         try {
-            field.set(object, value);
+            field.set(object, convert(field.getType(), value));
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
@@ -142,9 +139,22 @@ public class SettingsAnalyzer {
 
     protected void setter(Method method, Object object, Object value) {
         try {
-            method.invoke(object, value);
+            method.invoke(object, convert(method.getParameterTypes()[0], value));
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    /**
+     * Sure, we could come up with all sorts of clever conversion, but it would fall out of the scope of this library.
+     * There is no need to reinvent it, better to make use of some existing converters like Spring's ConverterService.
+     */
+    protected Object convert(Class<?> destinationType, Object value) {
+        if (value == null && destinationType.isPrimitive()) {
+            // a clever way to get default value for the primitive
+            return Array.get(Array.newInstance(destinationType, 1), 0);
+        } else {
+            return value;
         }
     }
 
