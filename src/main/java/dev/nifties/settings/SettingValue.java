@@ -5,8 +5,8 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class SettingValue<T> implements Serializable {
-    private final T value;
+public class SettingValue implements Serializable {
+    private final Object value;
 
     @Override
     public String toString() {

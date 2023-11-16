@@ -7,13 +7,13 @@ import java.util.function.Consumer;
 
 public class SettingsBinder {
 
-    private final Map<Object, Collection<Consumer<SettingValue<Object>>>> bindings = new ConcurrentHashMap<>();
+    private final Map<Object, Collection<Consumer<SettingValue>>> bindings = new ConcurrentHashMap<>();
 
-    public void add(Object object, Collection<Consumer<SettingValue<Object>>> listeners) {
+    public void add(Object object, Collection<Consumer<SettingValue>> listeners) {
         bindings.put(object, listeners);
     }
 
-    public Collection<Consumer<SettingValue<Object>>> remove(Object object) {
+    public Collection<Consumer<SettingValue>> remove(Object object) {
         return bindings.remove(object);
     }
 }

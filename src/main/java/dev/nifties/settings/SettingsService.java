@@ -1,7 +1,6 @@
 package dev.nifties.settings;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +11,7 @@ import java.util.function.Consumer;
 public class SettingsService implements Consumer<String>, Closeable {
     private final List<SettingsSource> settingsSources;
 
-    private final ConcurrentHashMap<String, Collection<Consumer<SettingValue<Object>>>> listeners =
+    private final ConcurrentHashMap<String, Collection<Consumer<SettingValue>>> listeners =
             new ConcurrentHashMap<>();
 
     public SettingsService(List<SettingsSource> settingsSources) {
@@ -23,9 +22,9 @@ public class SettingsService implements Consumer<String>, Closeable {
                 .forEach(s -> s.subscribe(this));
     }
 
-    public SettingValue<Object> get(String key) {
+    public SettingValue get(String key) {
         for (SettingsSource settingsSource : settingsSources) {
-            SettingValue<Object> settingValue = settingsSource.get(key);
+            SettingValue settingValue = settingsSource.get(key);
             if (settingValue != null) {
                 return settingValue;
             }
@@ -33,12 +32,12 @@ public class SettingsService implements Consumer<String>, Closeable {
         return null;
     }
 
-    public void addListener(String key, Consumer<SettingValue<Object>> listener) {
+    public void addListener(String key, Consumer<SettingValue> listener) {
         listeners.computeIfAbsent(key, k -> new ConcurrentLinkedQueue<>()).add(listener);
     }
 
-    public void removeListener(Consumer<SettingValue<Object>> listener) {
-        listeners.values().stream().forEach(c -> c.remove(listener));
+    public void removeListener(Consumer<SettingValue> listener) {
+        listeners.values().forEach(c -> c.remove(listener));
     }
 
     @Override
@@ -47,14 +46,14 @@ public class SettingsService implements Consumer<String>, Closeable {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         settingsSources.stream()
                 .filter(o -> SettingsStream.class.isAssignableFrom(o.getClass()))
                 .map(SettingsStream.class::cast)
                 .forEach(s -> s.unsubscribe(this));
     }
 
-    protected void notifyListeners(String key, SettingValue<Object> settingValue) {
+    protected void notifyListeners(String key, SettingValue settingValue) {
         listeners.getOrDefault(key, Collections.emptyList()).forEach(c -> c.accept(settingValue));
     }
 }

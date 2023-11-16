@@ -6,17 +6,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class SimpleSettingsHolder implements SettingsSource, SettingsStream {
-    private final Map<String, SettingValue<Object>> values = new ConcurrentHashMap<>();
+    private final Map<String, SettingValue> values = new ConcurrentHashMap<>();
 
     private final Set<Consumer<String>> subscribers = ConcurrentHashMap.newKeySet();
 
     @Override
-    public SettingValue<Object> get(String key) {
+    public SettingValue get(String key) {
         return values.get(key);
     }
 
     public void put(String key, Object value) {
-        values.put(key, new SettingValue<>(value));
+        values.put(key, new SettingValue(value));
         notifyListeners(key);
     }
 
