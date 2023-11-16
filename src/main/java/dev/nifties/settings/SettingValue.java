@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class SettingContainer<T> implements Serializable {
+public class SettingValue<T> implements Serializable {
     private final T value;
 
     @Override

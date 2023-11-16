@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 public class SettingsService implements Consumer<String>, Closeable {
     private final List<SettingsSource> settingsSources;
 
-    private final ConcurrentHashMap<String, Collection<Consumer<SettingContainer<Object>>>> listeners =
+    private final ConcurrentHashMap<String, Collection<Consumer<SettingValue<Object>>>> listeners =
             new ConcurrentHashMap<>();
 
     public SettingsService(List<SettingsSource> settingsSources) {
@@ -23,21 +23,21 @@ public class SettingsService implements Consumer<String>, Closeable {
                 .forEach(s -> s.subscribe(this));
     }
 
-    public SettingContainer<Object> get(String key) {
+    public SettingValue<Object> get(String key) {
         for (SettingsSource settingsSource : settingsSources) {
-            SettingContainer<Object> settingContainer = settingsSource.get(key);
-            if (settingContainer != null) {
-                return settingContainer;
+            SettingValue<Object> settingValue = settingsSource.get(key);
+            if (settingValue != null) {
+                return settingValue;
             }
         }
         return null;
     }
 
-    public void addListener(String key, Consumer<SettingContainer<Object>> listener) {
+    public void addListener(String key, Consumer<SettingValue<Object>> listener) {
         listeners.computeIfAbsent(key, k -> new ConcurrentLinkedQueue<>()).add(listener);
     }
 
-    public void removeListener(Consumer<SettingContainer<Object>> listener) {
+    public void removeListener(Consumer<SettingValue<Object>> listener) {
         listeners.values().stream().forEach(c -> c.remove(listener));
     }
 
@@ -54,7 +54,7 @@ public class SettingsService implements Consumer<String>, Closeable {
                 .forEach(s -> s.unsubscribe(this));
     }
 
-    protected void notifyListeners(String key, SettingContainer<Object> settingContainer) {
-        listeners.getOrDefault(key, Collections.emptyList()).forEach(c -> c.accept(settingContainer));
+    protected void notifyListeners(String key, SettingValue<Object> settingValue) {
+        listeners.getOrDefault(key, Collections.emptyList()).forEach(c -> c.accept(settingValue));
     }
 }
