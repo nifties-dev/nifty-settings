@@ -17,7 +17,7 @@ import dev.nifties.settings.annotation.Setting;
 public class NiftySettingsUsecaseTest {
 
     private SimpleSettingsHolder settingsHolder = new SimpleSettingsHolder();
-    private SettingsService settingsService = new SettingsService(List.of(settingsHolder));
+    private MultiSourceSettingsService settingsService = new MultiSourceSettingsService(List.of(settingsHolder));
     private SettingsManager settingsManager = new SettingsManager(
             new SettingsAnalyzer(), new SettingsBinder(), settingsService);
 
