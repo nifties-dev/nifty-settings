@@ -17,8 +17,8 @@ public class SettingsService implements Consumer<String>, Closeable {
     public SettingsService(List<SettingsSource> settingsSources) {
         this.settingsSources = settingsSources;
         settingsSources.stream()
-                .filter(o -> SettingsStream.class.isAssignableFrom(o.getClass()))
-                .map(SettingsStream.class::cast)
+                .filter(o -> SettingsChannel.class.isAssignableFrom(o.getClass()))
+                .map(SettingsChannel.class::cast)
                 .forEach(s -> s.subscribe(this));
     }
 
@@ -48,8 +48,8 @@ public class SettingsService implements Consumer<String>, Closeable {
     @Override
     public void close() {
         settingsSources.stream()
-                .filter(o -> SettingsStream.class.isAssignableFrom(o.getClass()))
-                .map(SettingsStream.class::cast)
+                .filter(o -> SettingsChannel.class.isAssignableFrom(o.getClass()))
+                .map(SettingsChannel.class::cast)
                 .forEach(s -> s.unsubscribe(this));
     }
 

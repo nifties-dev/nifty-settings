@@ -5,7 +5,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-public class SimpleSettingsHolder implements SettingsSource, SettingsStream {
+public class SimpleSettingsHolder implements SettingsSource, SettingsChannel {
     private final Map<String, SettingValue> values = new ConcurrentHashMap<>();
 
     private final Set<Consumer<String>> subscribers = ConcurrentHashMap.newKeySet();
