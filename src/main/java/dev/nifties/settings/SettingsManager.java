@@ -2,7 +2,6 @@ package dev.nifties.settings;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Consumer;
 
 public class SettingsManager {
 
@@ -30,20 +29,20 @@ public class SettingsManager {
 
     public void bind(Object object) {
         Collection<SettingAccessor> mappings = analyzer.get(object.getClass());
-        Collection<Consumer<SettingValue>> appliers = binder == null ? null : new ArrayList<>(mappings.size());
+        Collection<SettingsListener> listeners = binder == null ? null : new ArrayList<>(mappings.size());
         for (SettingAccessor mapping : mappings) {
             Object defaultValue = mapping.getGetter().apply(object);
-            Consumer<SettingValue> applier =
+            SettingsListener listener =
                     v -> mapping.getSetter().accept(object, v != null ? v.getValue() : defaultValue);
             SettingValue settingValue = service.get(mapping.getName());
-            applier.accept(settingValue);
-            service.addListener(mapping.getName(), applier);
+            listener.onChange(settingValue);
+            service.addListener(mapping.getName(), listener);
             if (binder != null) {
-                appliers.add(applier);
+                listeners.add(listener);
             }
         }
         if (binder != null) {
-            binder.add(object, appliers);
+            binder.add(object, listeners);
         }
     }
 
@@ -51,10 +50,10 @@ public class SettingsManager {
         if (binder == null) {
             throw new UnsupportedOperationException("Unbind operation requires SettingsBinder to be set up");
         }
-        Collection<Consumer<SettingValue>> listeners = binder.remove(object);
+        Collection<SettingsListener> listeners = binder.remove(object);
         if (listeners != null) {
             listeners.forEach(service::removeListener);
-            listeners.forEach(l -> l.accept(null)); // restore to original value
+            listeners.forEach(l -> l.onChange(null)); // restore to original value
         }
     }
 }

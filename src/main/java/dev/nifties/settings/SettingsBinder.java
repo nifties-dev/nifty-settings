@@ -1,22 +1,19 @@
 package dev.nifties.settings;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class SettingsBinder {
 
-    private final Map<Object, Collection<Consumer<SettingValue>>> bindings =
+    private final Map<Object, Collection<SettingsListener>> bindings =
             Collections.synchronizedMap(new IdentityHashMap<>());
 
-    public void add(Object object, Collection<Consumer<SettingValue>> listeners) {
+    public void add(Object object, Collection<SettingsListener> listeners) {
         bindings.put(object, listeners);
     }
 
-    public Collection<Consumer<SettingValue>> remove(Object object) {
+    public Collection<SettingsListener> remove(Object object) {
         return bindings.remove(object);
     }
 }

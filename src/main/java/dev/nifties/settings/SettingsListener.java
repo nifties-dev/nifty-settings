@@ -1,6 +1,6 @@
 package dev.nifties.settings;
 
-public interface SettingsListener<T> {
+public interface SettingsListener {
 
-    void onChange(T value);
+    void onChange(SettingValue value);
 }
