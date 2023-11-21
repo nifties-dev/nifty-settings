@@ -4,14 +4,10 @@ import dev.nifties.settings.annotation.Setting;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SettingsMethodTest {
-
-    private SimpleSettingsHolder settingsHolder = new SimpleSettingsHolder();
-    private MultiSourceSettingsService settingsService = new MultiSourceSettingsService(List.of(settingsHolder));
+    private SimpleSettingsService settingsService = new SimpleSettingsService();
     private SettingsManager settingsManager = new SettingsManager(
             new SettingsAnalyzer(), new SettingsBinder(), settingsService);
 
@@ -27,7 +23,7 @@ public class SettingsMethodTest {
 
     @Test
     public void annotatedMethodWithoutFieldInjected() {
-        settingsHolder.put(MyService1.class.getName() + ".enabled",
+        settingsService.put(MyService1.class.getName() + ".enabled",
                 Boolean.TRUE);
 
         MyService1 myService = new MyService1();
@@ -35,21 +31,21 @@ public class SettingsMethodTest {
         assertTrue(myService.notMatchingField);
 
         myService = new MyService1();
-        settingsHolder.remove(MyService1.class.getName() + ".enabled");
+        settingsService.remove(MyService1.class.getName() + ".enabled");
         settingsManager.inject(myService);
         assertFalse(myService.notMatchingField);
     }
 
     @Test
     public void annotatedMethodWithoutFieldBound() {
-        settingsHolder.put(MyService1.class.getName() + ".enabled",
+        settingsService.put(MyService1.class.getName() + ".enabled",
                 Boolean.TRUE);
 
         MyService1 myService = new MyService1();
         settingsManager.bind(myService);
         assertTrue(myService.notMatchingField);
 
-        settingsHolder.remove(MyService1.class.getName() + ".enabled");
+        settingsService.remove(MyService1.class.getName() + ".enabled");
         assertFalse(myService.notMatchingField);
     }
 
@@ -64,7 +60,7 @@ public class SettingsMethodTest {
 
     @Test
     public void annotatedGetterWithPrivateFieldInjected() {
-        settingsHolder.put(MyService2.class.getName() + ".enabled", Boolean.TRUE);
+        settingsService.put(MyService2.class.getName() + ".enabled", Boolean.TRUE);
 
         IllegalArgumentException e = Assertions.assertThrows(IllegalArgumentException.class,
                 () -> settingsManager.inject(new MyService2()));
@@ -76,7 +72,7 @@ public class SettingsMethodTest {
 
     @Test
     public void annotatedGetterWithPrivateFieldBound() {
-        settingsHolder.put(MyService2.class.getName() + ".enabled", Boolean.TRUE);
+        settingsService.put(MyService2.class.getName() + ".enabled", Boolean.TRUE);
 
         IllegalArgumentException e = Assertions.assertThrows(IllegalArgumentException.class,
                 () -> settingsManager.bind(new MyService2()));
@@ -97,40 +93,40 @@ public class SettingsMethodTest {
 
     @Test
     public void annotatedSetterWithPrivateFieldInjected() {
-        settingsHolder.put(MyService3.class.getName() + ".queueSize", 10);
+        settingsService.put(MyService3.class.getName() + ".queueSize", 10);
 
         MyService3 myService = new MyService3();
         settingsManager.inject(myService);
         assertEquals(10, myService.queueSize);
 
-        settingsHolder.put(MyService3.class.getName() + ".queueSize", 0);
+        settingsService.put(MyService3.class.getName() + ".queueSize", 0);
         settingsManager.inject(myService);
         assertEquals(1, myService.queueSize);
 
         myService = new MyService3();
-        settingsHolder.remove(MyService3.class.getName() + ".queueSize");
+        settingsService.remove(MyService3.class.getName() + ".queueSize");
         settingsManager.inject(myService);
         assertEquals(0, myService.queueSize);
     }
 
     @Test
     public void annotatedSetterWithPrivateFieldBound() {
-        settingsHolder.put(MyService3.class.getName() + ".queueSize", 10);
+        settingsService.put(MyService3.class.getName() + ".queueSize", 10);
 
         MyService3 myService = new MyService3();
         settingsManager.bind(myService);
         assertEquals(10, myService.queueSize);
 
-        settingsHolder.put(MyService3.class.getName() + ".queueSize", 0);
+        settingsService.put(MyService3.class.getName() + ".queueSize", 0);
         assertEquals(1, myService.queueSize);
 
-        settingsHolder.remove(MyService3.class.getName() + ".queueSize");
+        settingsService.remove(MyService3.class.getName() + ".queueSize");
         assertEquals(1, myService.queueSize);
 
         settingsManager.unbind(myService);
         assertEquals(1, myService.queueSize);
 
-        settingsHolder.put(MyService3.class.getName() + ".queueSize", 20);
+        settingsService.put(MyService3.class.getName() + ".queueSize", 20);
         assertEquals(1, myService.queueSize);
     }
 
@@ -149,40 +145,40 @@ public class SettingsMethodTest {
 
     @Test
     public void annotatedSetterWithPrivateFieldAndGetterInjected() {
-        settingsHolder.put(MyService4.class.getName() + ".queueSize", 10);
+        settingsService.put(MyService4.class.getName() + ".queueSize", 10);
 
         MyService4 myService = new MyService4();
         settingsManager.inject(myService);
         assertEquals(10, myService.getQueueSize());
 
-        settingsHolder.put(MyService4.class.getName() + ".queueSize", 0);
+        settingsService.put(MyService4.class.getName() + ".queueSize", 0);
         settingsManager.inject(myService);
         assertEquals(1, myService.getQueueSize());
 
         myService = new MyService4();
-        settingsHolder.remove(MyService4.class.getName() + ".queueSize");
+        settingsService.remove(MyService4.class.getName() + ".queueSize");
         settingsManager.inject(myService);
         assertEquals(0, myService.getQueueSize());
     }
 
     @Test
     public void annotatedSetterWithPrivateFieldAndSetterBound() {
-        settingsHolder.put(MyService4.class.getName() + ".queueSize", 10);
+        settingsService.put(MyService4.class.getName() + ".queueSize", 10);
 
         MyService4 myService = new MyService4();
         settingsManager.bind(myService);
         assertEquals(10, myService.getQueueSize());
 
-        settingsHolder.put(MyService4.class.getName() + ".queueSize", 0);
+        settingsService.put(MyService4.class.getName() + ".queueSize", 0);
         assertEquals(1, myService.getQueueSize());
 
-        settingsHolder.remove(MyService4.class.getName() + ".queueSize");
+        settingsService.remove(MyService4.class.getName() + ".queueSize");
         assertEquals(1, myService.getQueueSize()); // 1 not 0, because original value is restored using setter
 
         settingsManager.unbind(myService);
         assertEquals(1, myService.getQueueSize());
 
-        settingsHolder.put(MyService4.class.getName() + ".queueSize", 20);
+        settingsService.put(MyService4.class.getName() + ".queueSize", 20);
         assertEquals(1, myService.getQueueSize());
     }
 }

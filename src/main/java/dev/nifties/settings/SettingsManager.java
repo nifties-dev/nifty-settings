@@ -7,9 +7,9 @@ public class SettingsManager {
 
     private final SettingsAnalyzer analyzer;
     private final SettingsBinder binder;
-    private final MultiSourceSettingsService service;
+    private final SettingsService service;
 
-    public SettingsManager(SettingsAnalyzer analyzer, SettingsBinder binder, MultiSourceSettingsService service) {
+    public SettingsManager(SettingsAnalyzer analyzer, SettingsBinder binder, SettingsService service) {
         this.analyzer = analyzer;
         this.binder = binder;
         this.service = service;
