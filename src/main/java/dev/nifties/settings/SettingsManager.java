@@ -9,10 +9,18 @@ public class SettingsManager {
     private final SettingsBinder binder;
     private final SettingsService service;
 
+    public SettingsManager(SettingsAnalyzer analyzer, SettingsBinder binder) {
+        this(analyzer, binder, SettingsServiceFactory.getInstance());
+    }
+
     public SettingsManager(SettingsAnalyzer analyzer, SettingsBinder binder, SettingsService service) {
         this.analyzer = analyzer;
         this.binder = binder;
         this.service = service;
+    }
+
+    public SettingsService getService() {
+        return service;
     }
 
     public <O> void inject(O object) {

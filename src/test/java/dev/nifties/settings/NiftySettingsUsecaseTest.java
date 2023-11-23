@@ -12,10 +12,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class NiftySettingsUsecaseTest {
 
-    private SimpleSettingsService settingsService = new SimpleSettingsService();
+//    private SimpleSettingsService settingsService = new SimpleSettingsService();
     private SettingsManager settingsManager = new SettingsManager(
-            new SettingsAnalyzer(), new SettingsBinder(), settingsService);
+            new SettingsAnalyzer(), new SettingsBinder());
 
+    private SimpleSettingsService settingsService = (SimpleSettingsService) settingsManager.getService();
     public static class MyService1 {
         @Setting
         private boolean enabled;
