@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
@@ -20,6 +21,13 @@ public class MultiSourceSettingsService implements SettingsService, Consumer<Str
                 .filter(o -> SettingsChannel.class.isAssignableFrom(o.getClass()))
                 .map(SettingsChannel.class::cast)
                 .forEach(s -> s.subscribe(this));
+    }
+
+    public <C extends SettingsSource> Optional<C> findSettingsSource(Class<C> type) {
+        return settingsSources.stream()
+                .filter(s -> s.getClass().equals(type))
+                .map(s -> type.cast(s))
+                .findFirst();
     }
 
     @Override
