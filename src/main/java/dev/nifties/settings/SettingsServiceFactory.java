@@ -8,6 +8,7 @@ public class SettingsServiceFactory {
     public static SettingsService getInstance() {
         ServiceLoader<SettingsSource> settingsSources = ServiceLoader.load(SettingsSource.class);
         List<SettingsSource> sources = settingsSources.stream()
+                .filter(p -> !p.type().getPackage().equals(SettingsServiceFactory.class.getPackage()))
                 .map(ServiceLoader.Provider::get)
                 .collect(Collectors.toList());
         if (sources.isEmpty()) {

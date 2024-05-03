@@ -53,7 +53,7 @@ java {
 }
 
 compileJava {
-    options.release = 8
+    options.release = 9
 }
 
 test {
