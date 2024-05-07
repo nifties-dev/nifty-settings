@@ -6,5 +6,4 @@ module nifty.settings.client {
     exports dev.nifties.settings;
     exports dev.nifties.settings.annotation;
     uses SettingsSource;
-    uses SettingsChannel;
 }
