@@ -8,8 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class SettingsMethodTest {
     private SimpleSettingsService settingsService = new SimpleSettingsService();
-    private SettingsManager settingsManager = new SettingsManager(
-            new SettingsAnalyzer(), new SettingsBinder(), settingsService);
+    private SettingsManager settingsManager = SettingsManager.builder().service(settingsService).build();
 
     public static class MyService1 {
 
