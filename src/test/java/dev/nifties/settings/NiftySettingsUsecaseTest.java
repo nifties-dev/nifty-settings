@@ -13,8 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class NiftySettingsUsecaseTest {
 
 //    private SimpleSettingsService settingsService = new SimpleSettingsService();
-    private SettingsManager settingsManager = new SettingsManager(
-            new SettingsAnalyzer(), new SettingsBinder());
+    private SettingsManager settingsManager = SettingsManager.builder().build();
 
     private SimpleSettingsService settingsService = (SimpleSettingsService) settingsManager.getService();
     public static class MyService1 {

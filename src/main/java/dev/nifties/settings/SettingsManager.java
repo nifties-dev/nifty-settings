@@ -1,23 +1,19 @@
 package dev.nifties.settings;
 
+import lombok.Builder;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
+@Builder
 public class SettingsManager {
 
-    private final SettingsAnalyzer analyzer;
-    private final SettingsBinder binder;
-    private final SettingsService service;
-
-    public SettingsManager(SettingsAnalyzer analyzer, SettingsBinder binder) {
-        this(analyzer, binder, SettingsServiceFactory.getInstance());
-    }
-
-    public SettingsManager(SettingsAnalyzer analyzer, SettingsBinder binder, SettingsService service) {
-        this.analyzer = analyzer;
-        this.binder = binder;
-        this.service = service;
-    }
+    @Builder.Default
+    private final SettingsAnalyzer analyzer = new SettingsAnalyzer();
+    @Builder.Default
+    private final SettingsBinder binder = new SettingsBinder();
+    @Builder.Default
+    private final SettingsService service = SettingsServiceFactory.getInstance();
 
     public SettingsService getService() {
         return service;
