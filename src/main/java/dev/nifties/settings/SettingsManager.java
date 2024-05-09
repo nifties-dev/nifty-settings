@@ -15,6 +15,10 @@ public class SettingsManager {
     @Builder.Default
     private final SettingsService service = new SimpleSettingsService();
 
+    public SettingsService getService() {
+        return service;
+    }
+
     public <O> void inject(O object) {
         Collection<SettingAccessor> mappings = analyzer.get(object.getClass());
         mappings.forEach(m -> this.apply(m, object));
