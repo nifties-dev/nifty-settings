@@ -1,4 +1,3 @@
-import dev.nifties.settings.SettingsChannel;
 import dev.nifties.settings.SettingsSource;
 
 module nifty.settings.client {
