@@ -22,6 +22,43 @@ public class SettingsManagerBuilderTest {
     }
 
     @Test
+    public void customAnalyzer() {
+        SettingsAnalyzer customAnalyzer = Mockito.mock(SettingsAnalyzer.class);
+        SettingsManager settingsManager = SettingsManager.builder().analyzer(customAnalyzer).build();
+        assertNotNull(settingsManager);
+        assertNotNull(settingsManager.getAnalyzer());
+        assertEquals(customAnalyzer, settingsManager.getAnalyzer());
+        assertNotNull(settingsManager.getBinder());
+        assertEquals(SettingsBinder.class, settingsManager.getBinder().getClass());
+        assertNotNull(settingsManager.getService());
+        assertEquals(SimpleSettingsService.class, settingsManager.getService().getClass());
+    }
+
+    @Test
+    public void customBinder() {
+        SettingsBinder customBinder = Mockito.mock(SettingsBinder.class);
+        SettingsManager settingsManager = SettingsManager.builder().binder(customBinder).build();
+        assertNotNull(settingsManager);
+        assertNotNull(settingsManager.getAnalyzer());
+        assertEquals(SettingsAnalyzer.class, settingsManager.getAnalyzer().getClass());
+        assertNotNull(settingsManager.getBinder());
+        assertEquals(customBinder, settingsManager.getBinder());
+        assertNotNull(settingsManager.getService());
+        assertEquals(SimpleSettingsService.class, settingsManager.getService().getClass());
+    }
+
+    @Test
+    public void noBinder() {
+        SettingsManager settingsManager = SettingsManager.builder().noBinder(true).build();
+        assertNotNull(settingsManager);
+        assertNotNull(settingsManager.getAnalyzer());
+        assertEquals(SettingsAnalyzer.class, settingsManager.getAnalyzer().getClass());
+        assertNull(settingsManager.getBinder());
+        assertNotNull(settingsManager.getService());
+        assertEquals(SimpleSettingsService.class, settingsManager.getService().getClass());
+    }
+
+    @Test
     public void customService() {
         SimpleSettingsService customService = new SimpleSettingsService();
         SettingsManager settingsManager = SettingsManager.builder().service(customService).build();
