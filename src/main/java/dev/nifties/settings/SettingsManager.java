@@ -1,19 +1,43 @@
 package dev.nifties.settings;
 
 import lombok.Builder;
+import lombok.Singular;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 
-@Builder
 public class SettingsManager {
 
-    @Builder.Default
-    private final SettingsAnalyzer analyzer = new SettingsAnalyzer();
-    @Builder.Default
-    private final SettingsBinder binder = new SettingsBinder();
-    @Builder.Default
-    private final SettingsService service = new SimpleSettingsService();
+    private final SettingsAnalyzer analyzer;
+    private final SettingsBinder binder;
+    private final SettingsService service;
+
+    @Builder
+    public SettingsManager(SettingsAnalyzer analyzer, SettingsBinder binder, SettingsService service,
+                           @Singular List<SettingsSource> sources) {
+        this.analyzer = analyzer != null ? analyzer : new SettingsAnalyzer();
+        // TODO should allow leaving binder null, as it is optional
+        this.binder = binder != null ? binder : new SettingsBinder();
+        if (service != null) {
+            if (sources != null && !sources.isEmpty()) {
+                throw new IllegalArgumentException("service and sources are mutually exclusive");
+            }
+            this.service = service;
+        } else {
+            if (sources == null || sources.isEmpty()) {
+                this.service = new SimpleSettingsService();
+            } else {
+                this.service = new MultiSourceSettingsService(sources);
+            }
+        }
+    }
+
+    public SettingsAnalyzer getAnalyzer() {
+        return analyzer;
+    }
+
+    public SettingsBinder getBinder() {
+        return binder;
+    }
 
     public SettingsService getService() {
         return service;

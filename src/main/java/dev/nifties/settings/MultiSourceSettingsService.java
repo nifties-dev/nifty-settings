@@ -22,6 +22,10 @@ public class MultiSourceSettingsService implements SettingsService, Consumer<Str
                 .forEach(s -> s.subscribe(this));
     }
 
+    public List<SettingsSource> getSettingsSources() {
+        return settingsSources;
+    }
+
     @Override
     public SettingValue get(String key) {
         for (SettingsSource settingsSource : settingsSources) {
