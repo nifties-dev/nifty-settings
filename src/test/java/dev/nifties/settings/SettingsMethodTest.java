@@ -37,14 +37,19 @@ public class SettingsMethodTest {
 
     @Test
     public void annotatedMethodWithoutFieldBound() {
-        settingsService.put(MyService1.class.getName() + ".enabled",
-                Boolean.TRUE);
+        settingsService.put(MyService1.class.getName() + ".enabled", Boolean.TRUE);
 
         MyService1 myService = new MyService1();
         settingsManager.bind(myService);
         assertTrue(myService.notMatchingField);
 
         settingsService.remove(MyService1.class.getName() + ".enabled");
+        assertFalse(myService.notMatchingField);
+
+        settingsManager.unbind(myService);
+        assertFalse(myService.notMatchingField);
+
+        settingsService.put(MyService1.class.getName() + ".enabled", Boolean.TRUE);
         assertFalse(myService.notMatchingField);
     }
 

@@ -12,11 +12,10 @@ public class SettingsManager {
     private final SettingsService service;
 
     @Builder
-    public SettingsManager(SettingsAnalyzer analyzer, SettingsBinder binder, SettingsService service,
+    protected SettingsManager(SettingsAnalyzer analyzer, SettingsBinder binder, boolean noBinder, SettingsService service,
                            @Singular List<SettingsSource> sources) {
         this.analyzer = analyzer != null ? analyzer : new SettingsAnalyzer();
-        // TODO should allow leaving binder null, as it is optional
-        this.binder = binder != null ? binder : new SettingsBinder();
+        this.binder = binder != null || noBinder ? binder : new SettingsBinder();
         if (service != null) {
             if (sources != null && !sources.isEmpty()) {
                 throw new IllegalArgumentException("service and sources are mutually exclusive");

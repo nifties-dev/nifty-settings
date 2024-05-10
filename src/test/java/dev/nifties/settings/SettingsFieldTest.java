@@ -43,6 +43,13 @@ public class SettingsFieldTest {
 
         settingsService.remove(MyService1.class.getName() + ".enabled");
         assertFalse(myService.enabled);
+
+        settingsManager.unbind(myService);
+        assertFalse(myService.enabled);
+
+        settingsService.put(MyService1.class.getName() + ".enabled",
+                Boolean.TRUE);
+        assertFalse(myService.enabled);
     }
 
     public static class MyService2 {
