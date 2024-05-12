@@ -5,6 +5,7 @@ import dev.nifties.settings.annotation.Setting;
 import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -13,16 +14,23 @@ import java.util.stream.Stream;
 
 public class SettingsAnalyzer {
 
-    public Collection<SettingAccessor> get(Class<?> clazz) {
-        return Stream
-                .concat(Arrays.stream(clazz.getDeclaredFields())
-                        .map(f -> this.processField(clazz, f)),
-                        Arrays.stream(clazz.getDeclaredMethods())
-                                .map(m -> this.processMethod(clazz, m)))
-                .filter(Objects::nonNull).collect(Collectors.toList());
+    public Collection<SettingAccessor> get(String prefix, Class<?> clazz) {
+        Collection<SettingAccessor> inherited = clazz.getSuperclass() == null
+                ? Collections.emptyList() : get(prefix, clazz.getSuperclass());
+        return Stream.of(
+                inherited.stream(),
+                Arrays.stream(clazz.getInterfaces()).map(c -> get(prefix, c)).flatMap(Collection::stream),
+                Arrays.stream(clazz.getDeclaredFields())
+                        .map(f -> this.processField(prefix, clazz, f)),
+                Arrays.stream(clazz.getDeclaredMethods())
+                        .map(m -> this.processMethod(prefix, clazz, m)))
+        .flatMap(Function.identity())
+        .filter(Objects::nonNull)
+//        .distinct()
+        .collect(Collectors.toList());
     }
 
-    protected SettingAccessor processField(Class<?> clazz, Field field) {
+    protected SettingAccessor processField(String prefix, Class<?> clazz, Field field) {
         Setting settingAnnotation = field.getAnnotation(Setting.class);
         if (settingAnnotation == null) {
             return null;
@@ -61,10 +69,10 @@ public class SettingsAnalyzer {
             getter = o -> this.getter(field, o);
         }
 
-        return new SettingAccessor(clazz.getName() + '.' + field.getName(), getter, setter);
+        return new SettingAccessor(prefix + '.' + field.getName(), getter, setter);
     }
 
-    protected SettingAccessor processMethod(Class<?> clazz, Method method) {
+    protected SettingAccessor processMethod(String prefix, Class<?> clazz, Method method) {
         Setting settingAnnotation = method.getAnnotation(Setting.class);
         if (settingAnnotation == null) {
             return null;
@@ -98,7 +106,7 @@ public class SettingsAnalyzer {
                 getter = o -> null;
             }
         }
-        return new SettingAccessor(clazz.getName() + '.' + fieldName, getter,
+        return new SettingAccessor(prefix + '.' + fieldName, getter,
                 (o, v) -> this.setter(method, o, v));
     }
 
@@ -109,8 +117,7 @@ public class SettingsAnalyzer {
                         method.getParameterTypes()[0]) ? "is" : "get")
                 + method.getName().substring(3);
 
-        Method getterMethod = clazz.getMethod(getterName);
-        return getterMethod;
+        return clazz.getMethod(getterName);
     }
 
     protected Object getter(Field field, Object object) {

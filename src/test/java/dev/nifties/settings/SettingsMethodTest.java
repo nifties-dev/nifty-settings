@@ -185,4 +185,40 @@ public class SettingsMethodTest {
         settingsService.put(MyService4.class.getName() + ".queueSize", 20);
         assertEquals(1, myService.getQueueSize());
     }
+
+    public static class MyService5 extends MyService1 {
+    }
+
+    @Test
+    public void inheritedAnnotatedMethodWithoutFieldInjected() {
+        settingsService.put(MyService5.class.getName() + ".enabled",
+                Boolean.TRUE);
+
+        MyService5 myService = new MyService5();
+        settingsManager.inject(myService);
+        assertTrue(myService.notMatchingField);
+
+        myService = new MyService5();
+        settingsService.remove(MyService5.class.getName() + ".enabled");
+        settingsManager.inject(myService);
+        assertFalse(myService.notMatchingField);
+    }
+
+    @Test
+    public void inheritedAnnotatedMethodWithoutFieldBound() {
+        settingsService.put(MyService5.class.getName() + ".enabled", Boolean.TRUE);
+
+        MyService5 myService = new MyService5();
+        settingsManager.bind(myService);
+        assertTrue(myService.notMatchingField);
+
+        settingsService.remove(MyService5.class.getName() + ".enabled");
+        assertFalse(myService.notMatchingField);
+
+        settingsManager.unbind(myService);
+        assertFalse(myService.notMatchingField);
+
+        settingsService.put(MyService5.class.getName() + ".enabled", Boolean.TRUE);
+        assertFalse(myService.notMatchingField);
+    }
 }
