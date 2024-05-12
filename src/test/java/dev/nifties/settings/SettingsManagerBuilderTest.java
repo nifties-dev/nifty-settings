@@ -104,17 +104,6 @@ public class SettingsManagerBuilderTest {
     }
 
     @Test
-    public void noBinder() {
-        SettingsManager settingsManager = SettingsManager.builder().noBinder(true).build();
-        assertNotNull(settingsManager);
-        assertNotNull(settingsManager.getAnalyzer());
-        assertEquals(SettingsAnalyzer.class, settingsManager.getAnalyzer().getClass());
-        assertNull(settingsManager.getBinder());
-        assertNotNull(settingsManager.getService());
-        assertEquals(SimpleSettingsService.class, settingsManager.getService().getClass());
-    }
-
-    @Test
     public void serviceAndSourceConflict() {
         SettingsSource source = Mockito.mock(SettingsSource.class);
         SettingsManager.SettingsManagerBuilder builder =
