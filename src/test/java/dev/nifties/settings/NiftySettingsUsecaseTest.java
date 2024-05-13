@@ -48,23 +48,22 @@ public class NiftySettingsUsecaseTest {
         assertFalse(myService.isEnabled());
     }
 
-    public class MyService2 implements Closeable {
-        private ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors
-                .newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    public static class ThreadPoolExecutorConfigurator {
+        private final ThreadPoolExecutor threadPoolExecutor;
 
-        public ThreadPoolExecutor getThreadPoolExecutor() {
-            return threadPoolExecutor;
+        public ThreadPoolExecutorConfigurator(ThreadPoolExecutor threadPoolExecutor) {
+            this.threadPoolExecutor = threadPoolExecutor;
         }
 
         @Setting
-        public void setThreadPoolSize(int size) {
-            threadPoolExecutor.setMaximumPoolSize(size);
-            threadPoolExecutor.setCorePoolSize(size);
-        }
-
-        @Override
-        public void close() {
-            threadPoolExecutor.shutdown();
+        public void setPoolSize(int size) {
+            if (size >= threadPoolExecutor.getMaximumPoolSize()) {
+                threadPoolExecutor.setMaximumPoolSize(size);
+                threadPoolExecutor.setCorePoolSize(size);
+            } else {
+                threadPoolExecutor.setCorePoolSize(size);
+                threadPoolExecutor.setMaximumPoolSize(size);
+            }
         }
     }
 
@@ -72,25 +71,21 @@ public class NiftySettingsUsecaseTest {
     public void useCase2() {
         int defaultPoolSize = Runtime.getRuntime().availableProcessors();
         int customPoolSize = defaultPoolSize * 2;
-        settingsService.put(MyService2.class.getName() + ".threadPoolSize",
-                customPoolSize);
+        settingsService.put(ThreadPoolExecutorConfigurator.class.getName() + ".poolSize", customPoolSize);
 
-        try (MyService2 myService = new MyService2()) {
-            settingsManager.inject(myService);
-            assertEquals(customPoolSize,
-                    myService.getThreadPoolExecutor().getCorePoolSize());
-            assertEquals(customPoolSize,
-                    myService.getThreadPoolExecutor().getMaximumPoolSize());
-        }
+        ThreadPoolExecutor processingExecutor = (ThreadPoolExecutor)Executors.newFixedThreadPool(defaultPoolSize);
+        ThreadPoolExecutorConfigurator processingExecutorConfigurator = new ThreadPoolExecutorConfigurator(processingExecutor);
 
-        try (MyService2 myService = new MyService2()) {
-            settingsService
-                    .remove(MyService2.class.getName() + ".threadPoolSize");
-            settingsManager.inject(myService);
-            assertEquals(defaultPoolSize,
-                    myService.getThreadPoolExecutor().getCorePoolSize());
-            assertEquals(defaultPoolSize,
-                    myService.getThreadPoolExecutor().getMaximumPoolSize());
+        try {
+            settingsManager.bind(processingExecutorConfigurator);
+            assertEquals(customPoolSize, processingExecutor.getCorePoolSize());
+            assertEquals(customPoolSize, processingExecutor.getMaximumPoolSize());
+
+            settingsService.put(ThreadPoolExecutorConfigurator.class.getName() + ".poolSize", defaultPoolSize);
+            assertEquals(defaultPoolSize, processingExecutor.getCorePoolSize());
+            assertEquals(defaultPoolSize, processingExecutor.getMaximumPoolSize());
+        } finally {
+            processingExecutor.shutdown();
         }
     }
 }
