@@ -43,7 +43,11 @@ public class SettingsManager {
     }
 
     public <O> void inject(O object) {
-        Collection<SettingAccessor> mappings = analyzer.get(object.getClass().getName(), object.getClass());
+        inject(object.getClass().getName(), object);
+    }
+
+    public <O> void inject(String objectName, O object) {
+        Collection<SettingAccessor> mappings = analyzer.get(objectName, object.getClass());
         mappings.forEach(m -> this.apply(m, object));
     }
 
@@ -55,7 +59,11 @@ public class SettingsManager {
     }
 
     public void bind(Object object) {
-        Collection<SettingAccessor> mappings = analyzer.get(object.getClass().getName(), object.getClass());
+        bind(object.getClass().getName(), object);
+    }
+
+    public void bind(String objectName, Object object) {
+        Collection<SettingAccessor> mappings = analyzer.get(objectName, object.getClass());
         Collection<SettingsListener> listeners = binder == null ? null : new ArrayList<>(mappings.size());
         for (SettingAccessor mapping : mappings) {
             Object defaultValue = mapping.getGetter().apply(object);

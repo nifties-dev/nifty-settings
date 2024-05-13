@@ -71,17 +71,17 @@ public class NiftySettingsUsecaseTest {
     public void useCase2() {
         int defaultPoolSize = Runtime.getRuntime().availableProcessors();
         int customPoolSize = defaultPoolSize * 2;
-        settingsService.put(ThreadPoolExecutorConfigurator.class.getName() + ".poolSize", customPoolSize);
+        settingsService.put("processingExecutor.poolSize", customPoolSize);
 
         ThreadPoolExecutor processingExecutor = (ThreadPoolExecutor)Executors.newFixedThreadPool(defaultPoolSize);
         ThreadPoolExecutorConfigurator processingExecutorConfigurator = new ThreadPoolExecutorConfigurator(processingExecutor);
 
         try {
-            settingsManager.bind(processingExecutorConfigurator);
+            settingsManager.bind("processingExecutor", processingExecutorConfigurator);
             assertEquals(customPoolSize, processingExecutor.getCorePoolSize());
             assertEquals(customPoolSize, processingExecutor.getMaximumPoolSize());
 
-            settingsService.put(ThreadPoolExecutorConfigurator.class.getName() + ".poolSize", defaultPoolSize);
+            settingsService.put("processingExecutor.poolSize", defaultPoolSize);
             assertEquals(defaultPoolSize, processingExecutor.getCorePoolSize());
             assertEquals(defaultPoolSize, processingExecutor.getMaximumPoolSize());
         } finally {
