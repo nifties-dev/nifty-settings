@@ -18,6 +18,12 @@ public abstract class SettingsChannelBase implements SettingsChannel {
         subscribers.remove(consumer);
     }
 
+    /**
+     * @throws RuntimeException if any of subscribers fails to accept the signal, exception is thrown. There is no
+     *                          special handling in {@link SettingsChannelBase} class, but subclasses might want to do
+     *                          some logging or maybe propagate error back to the system where the change originated
+     *                          from.
+     */
     protected void notifySubscribers(final String key) {
         this.subscribers.forEach(s -> s.accept(key));
     }

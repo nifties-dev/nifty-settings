@@ -47,9 +47,31 @@ public class SettingsFieldTest {
         settingsManager.unbind(myService);
         assertFalse(myService.enabled);
 
-        settingsService.put(MyService1.class.getName() + ".enabled",
-                Boolean.TRUE);
+        settingsService.put(MyService1.class.getName() + ".enabled", Boolean.TRUE);
         assertFalse(myService.enabled);
+    }
+
+    @Test
+    public void annotatedFieldWithoutMethodsConversionFailureInjected() {
+        settingsService.put(MyService1.class.getName() + ".enabled", 1);
+
+        MyService1 myService = new MyService1();
+        assertThrows(IllegalArgumentException.class, () -> settingsManager.inject(myService));
+    }
+
+    @Test
+    public void annotatedFieldWithoutMethodsConversionFailureBound() {
+        settingsService.put(MyService1.class.getName() + ".enabled", 1);
+
+        MyService1 myService = new MyService1();
+        assertThrows(IllegalArgumentException.class, () -> settingsManager.bind(myService));
+
+        settingsService.put(MyService1.class.getName() + ".enabled", true);
+        settingsManager.bind(myService);
+        assertTrue(myService.enabled);
+
+        assertThrows(IllegalArgumentException.class, () -> settingsService.put(MyService1.class.getName() + ".enabled", 1));
+        assertTrue(myService.enabled);
     }
 
     public static class MyService2 {
