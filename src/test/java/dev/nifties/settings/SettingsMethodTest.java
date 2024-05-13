@@ -221,4 +221,56 @@ public class SettingsMethodTest {
         settingsService.put(MyService5.class.getName() + ".enabled", Boolean.TRUE);
         assertFalse(myService.notMatchingField);
     }
+
+    /**
+     * For methods this works slightly differently then with fields - methods do get overridden. So even though analyzer
+     * detects two mappings, when invoking them the same MyService6.setEnabled method gets executed twice.
+     * FIXME Same setter is invoked twice
+     */
+    public static class MyService6 extends MyService1 {
+        private boolean overriddenField;
+        @Setting
+        public void setEnabled(boolean overriddenField) {
+            super.setEnabled(overriddenField); // parent value will get set only if we call super explicitly.
+            this.overriddenField = overriddenField;
+        }
+    }
+
+    @Test
+    public void overriddenInheritedAnnotatedMethodWithoutFieldInjected() {
+        settingsService.put(MyService6.class.getName() + ".enabled", Boolean.TRUE);
+
+        MyService6 myService = new MyService6();
+        settingsManager.inject(myService);
+        assertTrue(myService.overriddenField);
+        assertTrue(myService.notMatchingField);
+
+        myService = new MyService6();
+        settingsService.remove(MyService6.class.getName() + ".enabled");
+        settingsManager.inject(myService);
+        assertFalse(myService.overriddenField);
+        assertFalse(myService.notMatchingField);
+    }
+
+    @Test
+    public void overriddenInheritedAnnotatedMethodWithoutFieldBound() {
+        settingsService.put(MyService6.class.getName() + ".enabled", Boolean.TRUE);
+
+        MyService6 myService = new MyService6();
+        settingsManager.bind(myService);
+        assertTrue(myService.overriddenField);
+        assertTrue(myService.notMatchingField);
+
+        settingsService.remove(MyService6.class.getName() + ".enabled");
+        assertFalse(myService.overriddenField);
+        assertFalse(myService.notMatchingField);
+
+        settingsManager.unbind(myService);
+        assertFalse(myService.overriddenField);
+        assertFalse(myService.notMatchingField);
+
+        settingsService.put(MyService6.class.getName() + ".enabled", Boolean.TRUE);
+        assertFalse(myService.overriddenField);
+        assertFalse(myService.notMatchingField);
+    }
 }

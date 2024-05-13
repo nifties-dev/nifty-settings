@@ -263,4 +263,45 @@ public class SettingsFieldTest {
                 Boolean.TRUE);
         assertFalse(myService.enabled);
     }
+
+    /**
+     * This is a weird situation, enabled field exists both here and in superclass. Mappings are created for both fields
+     * and they are updated sequentially, even though from outside we can only access top level object's field.
+     */
+    public static class MyService6 extends MyService1 {
+        @Setting
+        public boolean enabled;
+    }
+
+    @Test
+    public void overriddenInheritedAnnotatedFieldWithoutMethodsInjected() {
+        settingsService.put(MyService6.class.getName() + ".enabled", Boolean.TRUE);
+
+        MyService6 myService = new MyService6();
+        settingsManager.inject(myService);
+        assertTrue(myService.enabled);
+
+        myService = new MyService6();
+        settingsService.remove(MyService6.class.getName() + ".enabled");
+        settingsManager.inject(myService);
+        assertFalse(myService.enabled);
+    }
+
+    @Test
+    public void overriddenInheritedAnnotatedFieldWithoutMethodsBound() {
+        settingsService.put(MyService6.class.getName() + ".enabled", Boolean.TRUE);
+
+        MyService6 myService = new MyService6();
+        settingsManager.bind(myService);
+        assertTrue(myService.enabled);
+
+        settingsService.remove(MyService6.class.getName() + ".enabled");
+        assertFalse(myService.enabled);
+
+        settingsManager.unbind(myService);
+        assertFalse(myService.enabled);
+
+        settingsService.put(MyService6.class.getName() + ".enabled", Boolean.TRUE);
+        assertFalse(myService.enabled);
+    }
 }
