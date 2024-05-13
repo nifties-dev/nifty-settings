@@ -14,23 +14,23 @@ import java.util.stream.Stream;
 
 public class SettingsAnalyzer {
 
-    public Collection<SettingAccessor> get(String objectName, Class<?> clazz) {
+    public Collection<SettingAccessor> get(Class<?> clazz) {
         Collection<SettingAccessor> inherited = clazz.getSuperclass() == null
-                ? Collections.emptyList() : get(objectName, clazz.getSuperclass());
+                ? Collections.emptyList() : get(clazz.getSuperclass());
         return Stream.of(
                 inherited.stream(),
-                Arrays.stream(clazz.getInterfaces()).map(c -> get(objectName, c)).flatMap(Collection::stream),
+                Arrays.stream(clazz.getInterfaces()).map(c -> get(c)).flatMap(Collection::stream),
                 Arrays.stream(clazz.getDeclaredFields())
-                        .map(f -> this.processField(objectName, clazz, f)),
+                        .map(f -> this.processField(clazz, f)),
                 Arrays.stream(clazz.getDeclaredMethods())
-                        .map(m -> this.processMethod(objectName, clazz, m)))
+                        .map(m -> this.processMethod(clazz, m)))
         .flatMap(Function.identity())
         .filter(Objects::nonNull)
 //        .distinct()
         .collect(Collectors.toList());
     }
 
-    protected SettingAccessor processField(String objectName, Class<?> clazz, Field field) {
+    protected SettingAccessor processField(Class<?> clazz, Field field) {
         Setting settingAnnotation = field.getAnnotation(Setting.class);
         if (settingAnnotation == null) {
             return null;
@@ -69,10 +69,10 @@ public class SettingsAnalyzer {
             getter = o -> this.getter(field, o);
         }
 
-        return new SettingAccessor(objectName + '.' + field.getName(), getter, setter);
+        return new SettingAccessor(field.getName(), getter, setter);
     }
 
-    protected SettingAccessor processMethod(String objectName, Class<?> clazz, Method method) {
+    protected SettingAccessor processMethod(Class<?> clazz, Method method) {
         Setting settingAnnotation = method.getAnnotation(Setting.class);
         if (settingAnnotation == null) {
             return null;
@@ -106,8 +106,7 @@ public class SettingsAnalyzer {
                 getter = o -> null;
             }
         }
-        return new SettingAccessor(objectName + '.' + fieldName, getter,
-                (o, v) -> this.setter(method, o, v));
+        return new SettingAccessor(fieldName, getter, (o, v) -> this.setter(method, o, v));
     }
 
     protected Method findGetterBySetter(Class<?> clazz, Method method) throws NoSuchMethodException {

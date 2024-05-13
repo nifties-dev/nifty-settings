@@ -47,12 +47,12 @@ public class SettingsManager {
     }
 
     public <O> void inject(String objectName, O object) {
-        Collection<SettingAccessor> mappings = analyzer.get(objectName, object.getClass());
-        mappings.forEach(m -> this.apply(m, object));
+        Collection<SettingAccessor> mappings = analyzer.get(object.getClass());
+        mappings.forEach(m -> this.apply(objectName, object, m));
     }
 
-    protected void apply(SettingAccessor mapping, Object object) {
-        SettingValue settingValue = service.get(mapping.getName());
+    protected void apply(String objectName, Object object, SettingAccessor mapping) {
+        SettingValue settingValue = service.get(objectName + '.' + mapping.getName());
         if (settingValue != null) {
             mapping.getSetter().accept(object, settingValue.getValue());
         }
@@ -63,15 +63,16 @@ public class SettingsManager {
     }
 
     public void bind(String objectName, Object object) {
-        Collection<SettingAccessor> mappings = analyzer.get(objectName, object.getClass());
+        Collection<SettingAccessor> mappings = analyzer.get(object.getClass());
         Collection<SettingsListener> listeners = binder == null ? null : new ArrayList<>(mappings.size());
         for (SettingAccessor mapping : mappings) {
+            String key = objectName + '.' + mapping.getName();
             Object defaultValue = mapping.getGetter().apply(object);
             SettingsListener listener =
                     v -> mapping.getSetter().accept(object, v != null ? v.getValue() : defaultValue);
-            SettingValue settingValue = service.get(mapping.getName());
+            SettingValue settingValue = service.get(key);
             listener.onChange(settingValue);
-            service.addListener(mapping.getName(), listener);
+            service.addListener(key, listener);
             if (binder != null) {
                 listeners.add(listener);
             }
