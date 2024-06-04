@@ -296,4 +296,55 @@ public class SettingsMethodTest {
         assertFalse(myService.overriddenField);
         assertFalse(myService.notMatchingField);
     }
+
+    public static class MyService7 {
+        private MyService1 nested;
+
+        @Setting
+        public void setNested(MyService1 nested) {
+            this.nested = nested;
+        }
+    }
+
+    @Test
+    public void annotatedNestedMethodInjected() {
+        settingsService.put(MyService7.class.getName() + ".nested.enabled", Boolean.TRUE);
+
+        MyService7 myService = new MyService7();
+        // FIXME nested @Settings should probably be detected and fail-fasted
+        settingsManager.inject(myService);
+        assertNull(myService.nested);
+
+        // while in future complex objects could be supported, currently their not, and we expect conversion failure
+        settingsService.put(MyService7.class.getName() + ".nested", "enabled=true");
+        assertThrows(IllegalArgumentException.class, () -> settingsManager.inject(myService));
+        assertNull(myService.nested);
+
+        settingsService.remove(MyService7.class.getName() + ".nested");
+        settingsManager.inject(myService);
+        assertNull(myService.nested);
+    }
+
+    @Test
+    public void annotatedNestedMethodBound() {
+        settingsService.put(MyService7.class.getName() + ".nested.enabled", Boolean.TRUE);
+
+        MyService7 myService = new MyService7();
+        // FIXME nested @Settings should probably be detected and fail-fasted
+        settingsManager.bind(myService);
+        assertNull(myService.nested);
+
+        // while in future complex objects could be supported, currently their not, and we expect conversion failure
+        assertThrows(IllegalArgumentException.class,
+                () -> settingsService.put(MyService7.class.getName() + ".nested", "enabled=true"));
+
+        settingsService.remove(MyService7.class.getName() + ".nested.enabled");
+        assertNull(myService.nested);
+
+        settingsManager.unbind(myService);
+        assertNull(myService.nested);
+
+        settingsService.put(MyService7.class.getName() + ".nested.enabled", Boolean.TRUE);
+        assertNull(myService.nested);
+    }
 }
