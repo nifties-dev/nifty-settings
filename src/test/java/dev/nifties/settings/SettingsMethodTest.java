@@ -53,6 +53,29 @@ public class SettingsMethodTest {
         assertFalse(myService.notMatchingField);
     }
 
+    @Test
+    public void annotatedMethodWithoutFieldConversionFailureInjected() {
+        settingsService.put(MyService1.class.getName() + ".enabled", 1);
+
+        MyService1 myService = new MyService1();
+        assertThrows(IllegalArgumentException.class, () -> settingsManager.inject(myService));
+    }
+
+    @Test
+    public void annotatedMethodWithoutFieldConversionFailureBound() {
+        settingsService.put(MyService1.class.getName() + ".enabled", 1);
+
+        MyService1 myService = new MyService1();
+        assertThrows(IllegalArgumentException.class, () -> settingsManager.bind(myService));
+
+        settingsService.put(MyService1.class.getName() + ".enabled", true);
+        settingsManager.bind(myService);
+        assertTrue(myService.notMatchingField);
+
+        assertThrows(IllegalArgumentException.class, () -> settingsService.put(MyService1.class.getName() + ".enabled", 1));
+        assertTrue(myService.notMatchingField);
+    }
+
     public static class MyService2 {
         private boolean enabled;
 
