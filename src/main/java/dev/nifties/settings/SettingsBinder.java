@@ -1,9 +1,13 @@
 package dev.nifties.settings;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Consumer;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
+/**
+ * Holds references to objects bound using {@link SettingsManager}'s bind methods to support its unbind methods.
+ */
 public class SettingsBinder {
 
     private final Map<Object, Collection<SettingsListener>> bindings =

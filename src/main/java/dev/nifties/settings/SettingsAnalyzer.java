@@ -12,6 +12,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * <p>Analyzes classes, finds fields and methods that are to be exposed as settings. Produces {@link SettingAccessor}
+ * for every setting found.</p>
+ * <p>Default implementation seeks for a {@link Setting} annotation on fields or setter methods. Fields may be private.
+ * For general java-bean style properties setter method will be used for setting a field value if present. If not, field
+ * will be set directly. Setter method without a corresponding field will also be considered a valid setting with name
+ * derived from a method name.
+ * </p>
+ */
 public class SettingsAnalyzer {
 
     public Collection<SettingAccessor> get(Class<?> clazz) {

@@ -6,12 +6,17 @@ import lombok.Singular;
 import java.util.*;
 
 /**
- * Entry point for the client applications, acts like a Facade for the underlying components. Provides inject methods
- * for applying settings to an object once (suitable for short-lived objects), bind methods for creating a link between
- * settings service and the bound object, so it would be updated with settings continuously (designed for long-living
- * objects like singletons) and, optionally, unbind methods, which will only work if SettingsManager was set up with the
- * {@link SettingsBinder} (this comes at a cost of having explicit references to all bound objects - may be unnecessary
- * if you generally keep them until all the program is shutdown anyway).
+ * Entry point for the client applications, acts like a Facade for the underlying components. Provides following groups
+ * of methods:
+ * <ul>
+ *     <li>inject - apply settings to an object as a single-shot operation (suitable for short-lived objects);</li>
+ *     <li>bind - for creating a link between settings service and the bound object, so it would be updated with settings
+ *         continuously (designed for long-living objects like singletons);</li>
+ *     <li>unbind - explicitly unbinds object, that was previously bound using bind method. This is only supported, if
+ *         SettingsManager has been set up with the {@link SettingsBinder}, which is optional, as it comes with the cost
+ *         of having explicit references to all bound objects. This may be unnecessary if you generally keep them until
+ *         all the program is being shut down anyway.</li>
+ * </ul>
  */
 public class SettingsManager {
 
