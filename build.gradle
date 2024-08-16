@@ -2,12 +2,15 @@ plugins {
 	id 'java-library'
 //	id 'org.springframework.boot' version '3.0.2'
 	id 'io.spring.dependency-management' version '1.1.0'
+    id 'org.jreleaser' version '1.13.1'
 	id 'net.researchgate.release' version '3.0.2'
 	id 'maven-publish'
 }
 
 group = 'dev.nifties.settings'
 version = '0.0.1-SNAPSHOT'
+
+description = 'Convenient and continuous application settings delivery'
 
 configurations {
 	compileOnly {
@@ -50,8 +53,6 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
-    withJavadocJar()
-    withSourcesJar()
 }
 
 compileJava {
@@ -65,5 +66,31 @@ test {
 release {
     git {
         requireBranch.set('')
+    }
+}
+
+jreleaser {
+    project {
+        dryrun = true
+        authors = ['Andris Rauda']
+        license = 'MIT'
+        links {
+            homepage = 'https://github.com/nifties-dev/nifty-settings'
+        }
+        inceptionYear = '2023'
+    }
+
+    release {
+        github {
+            repoOwner = 'andris-rauda'
+            overwrite = true
+        }
+    }
+    distributions {
+        app {
+            artifact {
+                path = 'build/distributions/{{distributionName}}-{{projectVersion}}.zip'
+            }
+        }
     }
 }
