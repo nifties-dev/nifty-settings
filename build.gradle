@@ -49,9 +49,15 @@ repositories {
     mavenCentral()
 }
 
+def isRelease = providers.gradleProperty("isRelease")
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
+    }
+    if (isRelease.isPresent()) {
+        withJavadocJar()
+        withSourcesJar()
     }
 }
 
@@ -84,13 +90,14 @@ jreleaser {
         github {
             repoOwner = 'andris-rauda'
             overwrite = true
+            token = 'abc'
         }
     }
-    distributions {
-        app {
-            artifact {
-                path = 'build/distributions/{{distributionName}}-{{projectVersion}}.zip'
-            }
-        }
-    }
+//    distributions {
+//        app {
+//            artifact {
+//                path = 'build/distributions/{{distributionName}}-{{projectVersion}}.zip'
+//            }
+//        }
+//    }
 }
