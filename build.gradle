@@ -100,9 +100,9 @@ jreleaser {
 
     release {
         github {
-            repoOwner = 'andris-rauda'
             overwrite = true
-            token = 'abc'
+            repoOwner = System.getenv("GITHUB_ACTOR")
+            token = System.getenv('GITHUB_TOKEN')
         }
     }
 //    distributions {
