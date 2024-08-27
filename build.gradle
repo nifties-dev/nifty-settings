@@ -98,6 +98,12 @@ jreleaser {
         }
     }
 
+    signing {
+        passphrase = System.getenv('JRELEASER_GPG_PASSPHRASE')
+        publicKey = System.getenv('JRELEASER_GPG_PUBLIC_KEY')
+        secretKey = System.getenv('JRELEASER_GPG_SECRET_KEY')
+    }
+
     release {
         github {
             overwrite = true
@@ -105,11 +111,4 @@ jreleaser {
             token = System.getenv('GITHUB_TOKEN')
         }
     }
-//    distributions {
-//        app {
-//            artifact {
-//                path = 'build/distributions/{{distributionName}}-{{projectVersion}}.zip'
-//            }
-//        }
-//    }
 }
