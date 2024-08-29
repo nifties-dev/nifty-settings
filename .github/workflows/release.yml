@@ -1,0 +1,58 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+#    permissions:
+#      contents: read
+#      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Configure build steps as you'd normally do
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: 'zulu'
+#          server-id: central
+#          server-username: MAVEN_USERNAME
+#          server-password: MAVEN_CENTRAL_TOKEN
+#          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+#          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+#          cache: maven
+
+      - name: Setup Git
+        run: /usr/bin/git config user.email "notifications@github.com";/usr/bin/git config user.name "GitHub Actions"
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+
+      # Post JARs to Maven Central
+      - name: Build and Release to Maven Central
+        env:
+          JRELEASER_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          JRELEASER_GPG_PUBLIC_KEY: ${{ secrets.GPG_PUBLIC_KEY }}
+          JRELEASER_GPG_SECRET_KEY: ${{ secrets.GPG_SECRET_KEY }}
+        run: |
+          gradle build jreleaserFullRelease -PisRelease=true
+
+      # Persist logs
+      - name: JReleaser release output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jreleaser-release
+          path: |
+            out/jreleaser/trace.log
+            out/jreleaser/output.properties

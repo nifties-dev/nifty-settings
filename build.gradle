@@ -2,12 +2,15 @@ plugins {
 	id 'java-library'
 //	id 'org.springframework.boot' version '3.0.2'
 	id 'io.spring.dependency-management' version '1.1.0'
+    id 'org.jreleaser' version '1.13.1'
 	id 'net.researchgate.release' version '3.0.2'
 	id 'maven-publish'
 }
 
 group = 'dev.nifties.settings'
 version = '0.0.1-SNAPSHOT'
+
+description = 'Convenient and continuous application settings delivery'
 
 configurations {
 	compileOnly {
@@ -28,8 +31,35 @@ publishing {
     publications {
         maven(MavenPublication) {
             from components.java
+            pom {
+                description = property('description')
+                url = "https://github.com/nifties-dev/nifty-settings"
+
+                inceptionYear = '2023'
+                licenses {
+                    license {
+                        name = 'MIT Licence'
+                        url = 'https://opensource.org/license/mit'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'andris-rauda'
+                        name = 'Andris Rauda'
+                        email = 'andris.rauda@substance.org.lv'
+                        organization = "Nifties.Dev"
+                        organizationUrl = "https://nifties.dev"
+                    }
+                }
+                scm {
+                    connection = "scm:git:git://github.com/nifties-dev/nifty-settings.git"
+                    developerConnection = "scm:git:ssh://github.com/nifties-dev/nifty-settings.git"
+                    url = 'https://github.com/nifties-dev/nifty-settings'
+                }
+            }
         }
     }
+
     repositories {
         maven {
             name = "GitHubPackages"
@@ -46,12 +76,16 @@ repositories {
     mavenCentral()
 }
 
+def isRelease = providers.gradleProperty("isRelease")
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
-    withJavadocJar()
-    withSourcesJar()
+    if (isRelease.isPresent()) {
+        withJavadocJar()
+        withSourcesJar()
+    }
 }
 
 compileJava {
@@ -65,5 +99,43 @@ test {
 release {
     git {
         requireBranch.set('')
+    }
+}
+
+jreleaser {
+    project {
+        dryrun = true
+        authors = ['Andris Rauda']
+        license = 'MIT Licence'
+        links {
+            homepage = 'https://github.com/nifties-dev/nifty-settings'
+        }
+        inceptionYear = '2023'
+    }
+
+    files {
+        artifact {
+            path = 'build/libs/{{projectName}}-{{projectVersion}}.jar'
+        }
+        artifact {
+            path = 'build/libs/{{projectName}}-{{projectVersion}}-javadoc.jar'
+        }
+        artifact {
+            path = 'build/libs/{{projectName}}-{{projectVersion}}-sources.jar'
+        }
+    }
+
+    signing {
+        passphrase = System.getenv('JRELEASER_GPG_PASSPHRASE')
+        publicKey = System.getenv('JRELEASER_GPG_PUBLIC_KEY')
+        secretKey = System.getenv('JRELEASER_GPG_SECRET_KEY')
+    }
+
+    release {
+        github {
+            overwrite = true
+            repoOwner = System.getenv("GITHUB_ACTOR")
+            token = System.getenv('GITHUB_TOKEN')
+        }
     }
 }
