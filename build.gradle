@@ -31,8 +31,35 @@ publishing {
     publications {
         maven(MavenPublication) {
             from components.java
+            pom {
+                description = property('description')
+                url = "https://github.com/nifties-dev/nifty-settings"
+
+                inceptionYear = '2023'
+                licenses {
+                    license {
+                        name = 'MIT Licence'
+                        url = 'https://opensource.org/license/mit'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'andris-rauda'
+                        name = 'Andris Rauda'
+                        email = 'andris.rauda@substance.org.lv'
+                        organization = "Nifties.Dev"
+                        organizationUrl = "https://nifties.dev"
+                    }
+                }
+                scm {
+                    connection = "scm:git:git://github.com/nifties-dev/nifty-settings.git"
+                    developerConnection = "scm:git:ssh://github.com/nifties-dev/nifty-settings.git"
+                    url = 'https://github.com/nifties-dev/nifty-settings'
+                }
+            }
         }
     }
+
     repositories {
         maven {
             name = "GitHubPackages"
@@ -79,7 +106,7 @@ jreleaser {
     project {
         dryrun = true
         authors = ['Andris Rauda']
-        license = 'MIT'
+        license = 'MIT Licence'
         links {
             homepage = 'https://github.com/nifties-dev/nifty-settings'
         }
